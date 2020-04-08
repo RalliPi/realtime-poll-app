@@ -1,0 +1,7 @@
+{
+  "name": "Realtime-poll",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
