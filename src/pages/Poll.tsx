@@ -1,43 +1,20 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonList, IonItem, IonLabel } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import './Home.css';
-import { Poll } from '../model/poll';
-import { PollAnswer } from '../model/pollAnswer';
+import { usePoll, usePollAnswers } from '../hooks/poll';
 
 
-const Home: React.FC = () => {
+const Poll: React.FC = () => {
 
 
-  const [poll, setPoll] = useState<Poll>({
-    id: "poll1",
-    text: "Is @RalliPi the most underrated twitter account in the world?"
-  })
-
-  const [answers, setAnswers] = useState<PollAnswer[]>([
-    {
-      id: "a1",
-      text: "yes, absolutely",
-      amount: 0
-    },
-    {
-      id: "a2",
-      text: "I'm not sure",
-      amount: 0
-    },
-    {
-      id: "a3",
-      text: "No!",
-      amount: 0
-    }
-  ])
+  var poll = usePoll("poll1")
+  var { answers, vote } = usePollAnswers("poll1")
 
 
   const onVote = (e: React.MouseEvent<HTMLIonItemElement, MouseEvent>, id: string) => {
     e.preventDefault();
-    var newAnswers = [...answers];
-    var index = newAnswers.findIndex(a => a.id === id);
-    newAnswers[index].amount++;
-    setAnswers(newAnswers);
+    let answer = answers.find(a => a.id === id)
+    vote(answer!.id)
   };
 
   const answerList = () => {
@@ -53,7 +30,7 @@ const Home: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Realtime poll app</IonTitle>
+          <IonTitle>Ionic Blanks</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -68,4 +45,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Poll;

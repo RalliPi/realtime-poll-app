@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { db } from "../db";
-import { Poll, PollAnswer } from "../pages/Home";
-import { firestore} from "firebase";
+import { Poll } from "../model/poll";
+import { PollAnswer } from "../model/pollAnswer";
+import { firestore } from "firebase";
 
 
 
-export const usePoll = (pollId : string) => {
+export const usePoll = (pollId: string) => {
   const [poll, setPoll] = useState<Poll | null>(null);
 
   useEffect(() => {
@@ -13,11 +14,11 @@ export const usePoll = (pollId : string) => {
     db.collection("polls")
       .doc(pollId)
       .get()
-      .then((poll : firestore.DocumentSnapshot<firestore.DocumentData>) => {
+      .then((poll: firestore.DocumentSnapshot<firestore.DocumentData>) => {
         if (poll.exists) {
           setPoll({
-              id: poll.id,
-              text: poll.data()!.text
+            id: poll.id,
+            text: poll.data()!.text
           });
         } else {
           console.log("couldn't find poll");
@@ -31,8 +32,8 @@ export const usePoll = (pollId : string) => {
   return poll;
 };
 
-export const usePollAnswers = (pollId : string) => {
-    const [answers, setAnswers] = useState<PollAnswer[]>([]);
+export const usePollAnswers = (pollId: string) => {
+  const [answers, setAnswers] = useState<PollAnswer[]>([]);
 
   //setup data listeners
   useEffect(() => {
@@ -42,7 +43,7 @@ export const usePollAnswers = (pollId : string) => {
       .doc(pollId)
       .collection("answers")
       .onSnapshot(snapshot => {
-        var answerObjects : PollAnswer[] = [];
+        var answerObjects: PollAnswer[] = [];
         snapshot.docChanges().forEach(change => {
           answerObjects.push({
             id: change.doc.id,
@@ -55,16 +56,16 @@ export const usePollAnswers = (pollId : string) => {
     return () => {
       removeAnswersSnapshot();
     };
-  },[]);
+  }, []);
 
-  const vote = (id : string) => {
+  const vote = (id: string) => {
     var newAnswers = [...answers];
     var answer = newAnswers.find(a => a.id === id);
-    
+
     db.collection("polls").doc(pollId).collection("answers").doc(answer!.id).set({
       amount: answer!.amount + 1
-    }, {merge: true})
+    }, { merge: true })
   }
 
-  return {answers, vote}
+  return { answers, vote }
 };
