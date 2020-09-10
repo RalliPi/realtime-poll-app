@@ -4,8 +4,6 @@ import { Poll } from "../model/poll";
 import { PollAnswer } from "../model/pollAnswer";
 import { firestore } from "firebase";
 
-
-
 export const usePoll = (pollId: string) => {
   const [poll, setPoll] = useState<Poll | null>(null);
 
@@ -18,13 +16,13 @@ export const usePoll = (pollId: string) => {
         if (poll.exists) {
           setPoll({
             id: poll.id,
-            text: poll.data()!.text
+            text: poll.data()!.text,
           });
         } else {
           console.log("couldn't find poll");
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("error loading poll: " + error);
       });
   });
@@ -42,17 +40,17 @@ export const usePollAnswers = (pollId: string) => {
       .collection("polls")
       .doc(pollId)
       .collection("answers")
-      .onSnapshot(snapshot => {
+      .onSnapshot((snapshot) => {
         var answerObjects: PollAnswer[] = [];
-        snapshot.docChanges().forEach(change => {
+        snapshot.docs.forEach((doc) => {
           answerObjects.push({
-            id: change.doc.id,
-            text: change.doc.data().text,
-            amount: change.doc.data().amount,
+            id: doc.id,
+            text: doc.data().text,
+            amount: doc.data().amount,
           });
           setAnswers(answerObjects);
         });
-      })
+      });
     return () => {
       removeAnswersSnapshot();
     };
@@ -60,12 +58,19 @@ export const usePollAnswers = (pollId: string) => {
 
   const vote = (id: string) => {
     var newAnswers = [...answers];
-    var answer = newAnswers.find(a => a.id === id);
+    var answer = newAnswers.find((a) => a.id === id);
 
-    db.collection("polls").doc(pollId).collection("answers").doc(answer!.id).set({
-      amount: answer!.amount + 1
-    }, { merge: true })
-  }
+    db.collection("polls")
+      .doc(pollId)
+      .collection("answers")
+      .doc(answer!.id)
+      .set(
+        {
+          amount: answer!.amount + 1,
+        },
+        { merge: true }
+      );
+  };
 
-  return { answers, vote }
+  return { answers, vote };
 };
